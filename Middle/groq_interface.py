@@ -10,7 +10,7 @@ class Groq_Agent:
 
     def make_query(self, query, system_prompt = "You are Sam, a helpful friend who wants the best for the current user."):
         """
-        Makes a query to the Groq API and returns the response text.
+        Makes a query to the Groq API and returns the (num_input_tokens, response text, num_output_tokens)
         Also tracks token usage.
         """
         try:
@@ -24,11 +24,12 @@ class Groq_Agent:
             self.total_input_tokens += response.usage.prompt_tokens
             self.total_output_tokens += response.usage.completion_tokens
             
-            return response.choices[0].message.content
+            return (response.usage.prompt_tokens, response.choices[0].message.content, response.usage.completion_tokens)
 
         except Exception as e:
             print(f"Error making Groq query: {str(e)}")
-            return None
+            # If possible, find a better alternative than just setting input prompt tokens to 0
+            return (0 , None, 0)
 
     def get_token_usage(self):
         """
