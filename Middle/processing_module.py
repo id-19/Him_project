@@ -4,6 +4,7 @@ from groq_interface import Groq_Agent
 from collections import deque
 import os
 
+# Processing module
 class Conversationalist:
     def __init__(self, context_limit = 5000, model="") -> None:
         # Init for this module itself
@@ -90,7 +91,7 @@ class Conversationalist:
 
         Retrieved context related to query:
         {extra_context_string}
-        
+
         User's last interaction: {user_query}
         Please return a friendly and helpful response
         """
