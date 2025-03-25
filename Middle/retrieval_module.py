@@ -162,4 +162,11 @@ class Memory:
             return 1 # Success
         else:
             return 0 # already existed!
-    
+
+    def change_subfield_and_fact(self, top_level, sub_field, new_fact_string, to_add=True):
+        # Add
+        if (sub_field not in self.data[top_level]) and to_add:
+            self.field_data[top_level] += 1
+        self.data[top_level][sub_field] = new_fact_string
+            
+        
