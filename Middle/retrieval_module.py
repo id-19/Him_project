@@ -104,7 +104,7 @@ class Memory:
             return res
             
         recalled_data = []
-        hierarchical_keys = self._generate_keys(query)
+        hierarchical_keys = self._generate_keys(contextualized_query)
         # The first element of each sub-array is my top-level keys
         for key_obj in hierarchical_keys:
             top_level_key = key_obj[0]
