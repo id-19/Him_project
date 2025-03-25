@@ -116,7 +116,7 @@ class Memory:
                 if len(key_obj) > 1:
                     # Actually has some search terms
                     search_terms = key_obj[1:]
-                recalled_data.extend(data_obj[term] for term in search_terms if term in data_obj)
-                recalled_data.extend(search_misc(term, data_obj["misc."]) for term in search_terms)
+                    recalled_data.extend(data_obj[term] for term in search_terms if term in data_obj)
+                    recalled_data.extend(search_misc(term, data_obj["misc."]) for term in search_terms)
                     
         return "\n".join(recalled_data)
