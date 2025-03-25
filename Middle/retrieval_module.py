@@ -69,7 +69,7 @@ class Memory:
         <\keys>
         1. Do not generate any text outside the <keys> 
         2. The first field should always be a top level field
-        3. The search terms should be separated by spaces
+        3. The search terms should be separated by commas
         4. Err on the side of including more, and keep the search terms as general and abstract as you can
         """
         (_,resp,_) = self.llm.make_query(prompt)
@@ -88,7 +88,7 @@ class Memory:
             line = line.strip()
             if "|" in line:
                 field, terms = line.split("|", 1)
-                key_list.append([field.strip()] + terms.strip().split())
+                key_list.append([field.strip()] + list(terms.strip().split(",").map(lambda s:s.strip(),)))
 
         return key_list  # Returns a structured list of lists
 
