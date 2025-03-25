@@ -17,6 +17,7 @@ class Conversationalist:
         # Init for memory
         self.memory = Memory()
         self.user_name = self.memory.get_basic_info("name")
+        self.date = self.memory.get_date() # returned in string format
 
         # Init for learner
         self.learner = Learner()
