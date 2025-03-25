@@ -1,6 +1,7 @@
 from typing import List
 import json
 import datetime
+import re
 from groq_interface import Groq_Agent
 
 class Memory:
@@ -50,7 +51,7 @@ class Memory:
 
     # Retrieving data
     def _generate_keys(self, contextualized_query)->List[str]:
-        # Which top level fields to access
+        # Generate keys to search through knowledge base
         """
         LLM output should be in the format 
         <keys>
@@ -73,8 +74,25 @@ class Memory:
         3. The search terms should be separated by spaces
         4. Err on the side of including more, and keep the search terms as general and abstract as you can
         """
+        (_,resp,_) = self.llm.make_query()
+
+        # Extract text inside <keys>...</keys> using regex
+        match = re.search(r"<keys>(.*?)<\\keys>", resp, re.DOTALL)
         
-        return [[],[]]
+        if not match:
+            return []  # Return an empty list if no valid keys were found
+
+        keys_content = match.group(1).strip()
+
+        # Split lines and process each key entry
+        key_list = []
+        for line in keys_content.split("\n"):
+            line = line.strip()
+            if "|" in line:
+                field, terms = line.split("|", 1)
+                key_list.append([field.strip()] + terms.strip().split())
+
+        return key_list  # Returns a structured list of lists
 
     def retrieve(self, query):
         # I'll return a string with all the data
