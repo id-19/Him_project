@@ -20,11 +20,11 @@ class Conversationalist:
         # TODO: Add error checking in case we don't know name
         self.date = self.memory.get_date() # returned in string format
 
-        # Init for learner
-        self.learner = Learner()
-
         # Init for groq interface
         self.llm = Groq_Agent(groq_agent = Groq_Agent(os.getenv("GROQ_API_KEY"), model="qwen-2.5-32b"))
+
+        # Init for learner
+        self.learner = Learner(self.memory,self.llm)
 
     def _get_convo_context(self, actor, query):
         # prompt to extract context given previous context
