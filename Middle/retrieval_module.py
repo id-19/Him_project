@@ -47,7 +47,8 @@ class Memory:
         today = datetime.today()
         return today.strftime("%d/%m/%Y")  # "25/03/2025"
 
-    def _generate_keys(self, contextualized_query) -> List[List[str]]:
+    # Retrieving data
+    def _generate_keys(self, contextualized_query)->List[str]:
         # Generate keys to search through knowledge base
         """
         LLM output should be in the format 
@@ -63,13 +64,13 @@ class Memory:
         I want you to generate search keys for my knowledge base,
         and return them in this format:
         <keys>
-        top_level_field | search_term1, search_term2, ...
+        top_level_field
         ...
         <\keys>
         1. Do not generate any text outside the <keys> 
         2. Only generate top level fields
         """
-        (_, resp, _) = self.llm.make_query(prompt)
+        (_,resp,_) = self.llm.make_query(prompt)
 
         # Extract text inside <keys>...</keys> using regex
         match = re.search(r"<keys>(.*?)</keys>", resp, re.DOTALL)
@@ -78,20 +79,41 @@ class Memory:
             return []  # Return an empty list if no valid keys were found
 
         keys_content = match.group(1).strip()
-        key_list = []
-        for line in keys_content.split("\n"):
-            if line:  # Ignore empty lines
-                parts = line.split(" | ")
-                if len(parts) == 2:
-                    top_level_key = parts[0].strip()
-                    search_terms = [term.strip() for term in parts[1].split(",")]
-                    key_list.append([top_level_key] + search_terms)
-                else:
-                    # Handle cases where no search terms are provided
-                    top_level_key = line.strip()
-                    key_list.append([top_level_key])
+        top_level_keys = keys_content.split("\n")
+        rough_keys = []
+        for top_level_key in top_level_keys:
+            rough_keys.append([f"{top_level_key} | {list(self.data[top_level_key].keys())}"])
 
-        return key_list  # Returns a structured list of lists
+        final_prompt = f"""
+        Here is the context + query:{contextualized_query}
+        Now, I've chosen some fields from my knowledge base. I want you to select the subfields that seem relevant to you.
+        Here is a list of top_level_field | <chosen keys in top level field>:
+        {"\n".join(rough_keys)}
+        Return your output in the format:
+        <keys>
+        top_level_field | <chosen search term1>, <chosen term2> ....
+        ...
+        <\keys>
+        1. Err on the side of slightly more
+        2. DO NOT OUTPUT ANY TEXT OUTSIDE <keys>...</keys>
+        """
+        (_, resp,_) = self.llm.make_query(final_prompt)
+        # Extract text inside <keys>...</keys> using regex
+        match1 = re.search(r"<keys>(.*?)</keys>", resp, re.DOTALL)
+        
+        if not match1:
+            return []  # Return an empty list if no valid keys were found
+
+        keys_content = match1.group(1).strip()
+        key_list = []
+        
+        for line in keys_content.split("\n"):
+            line = line.strip()
+            if "|" in line:
+                field, terms = line.split("|", 1)
+                key_list.append([field.strip()] + [term.strip() for term in terms.split(",") if term.strip()])
+        
+        return key_list
 
     def retrieve(self, contextualized_query):
         # I'll return a string with all the data
