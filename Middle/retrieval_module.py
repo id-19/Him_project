@@ -110,7 +110,6 @@ class Memory:
             top_level_key = key_obj[0]
             if top_level_key in self.field_data:
                 data_obj = self.data[top_level_key]
-                misc_data = data_obj["misc."]
                 recalled_data.append(data_obj["general"]) # Essentials
 
                 if len(key_obj) > 1:
