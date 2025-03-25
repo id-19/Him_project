@@ -74,7 +74,7 @@ class Memory:
         3. The search terms should be separated by spaces
         4. Err on the side of including more, and keep the search terms as general and abstract as you can
         """
-        (_,resp,_) = self.llm.make_query()
+        (_,resp,_) = self.llm.make_query(prompt)
 
         # Extract text inside <keys>...</keys> using regex
         match = re.search(r"<keys>(.*?)<\\keys>", resp, re.DOTALL)
