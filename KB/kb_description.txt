@@ -1,0 +1,22 @@
+For permanent data: Containing info about both the user and relevant stuff he references
+    Outermost level:
+        1. Volatility (Permanent/Temporary)
+        2. Basic info. : K-V pairs with basic info about the person....easier access
+        3. Fields_info : Stores all the fields of the json object, as well as the number of entries for each
+        4. Data : Stores the actual data for all the fields of the json object
+
+    Inside data, structure is basically like:
+    {
+        <field1>:{
+            "general": <info to be retrieved on every query, rarely altered, basically learnt the first time this field was added>
+            <key>:<string>,
+            <key>:<string>,
+            ...
+            "misc.": [...set of strings] // for all the stuff that doesn't necessarily match with a key
+        }
+    }
+For temporary data:
+    {
+        K-V pairs with stuff like date, time, age, any events today
+    }
+
