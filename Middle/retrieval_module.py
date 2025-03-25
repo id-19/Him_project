@@ -30,6 +30,7 @@ class Memory:
         self.basic_info = permanent_info['basic_info']
         self.field_data = permanent_info['fields_info']
         self.top_level_fields = list(self.field_data.keys())
+        self.disk_path = path_to_permanent_data
         # self.init_temporary(self.basic_info, 
                             # self.data["events"]) # Initialise temporary data file
         self.llm = llm_interface
@@ -144,3 +145,12 @@ class Memory:
                     #     recalled_data.extend(misc_extension)
                     
         return "\n".join(recalled_data)
+    
+    # write to disk
+    def write_to_disk(self):
+        permanent_info = { "volatility":"permanent"}
+        permanent_info["fields_info"] = self.field_data
+        permanent_info["basic_info"] = self.basic_info
+        permanent_info["data"] = self.data
+        with open(self.disk_path, "w") as file:
+            json.dump(permanent_info, file, indent=4)

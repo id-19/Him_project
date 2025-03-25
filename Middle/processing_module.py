@@ -100,4 +100,5 @@ class Conversationalist:
 
         self.context_string = self._return_context
         _, response, _ = self.llm.make_query(finalized_prompt)
+        self.memory.write_to_disk() # write to disk at the end of each query
         return response
