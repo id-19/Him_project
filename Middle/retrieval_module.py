@@ -154,3 +154,12 @@ class Memory:
         permanent_info["data"] = self.data
         with open(self.disk_path, "w") as file:
             json.dump(permanent_info, file, indent=4)
+
+    def add_top_level_field(self, field_name):
+        if field_name not in self.field_data:
+            self.field_data[field_name] = 1
+            self.data[field_name] = {"general":""}
+            return 1 # Success
+        else:
+            return 0 # already existed!
+    
