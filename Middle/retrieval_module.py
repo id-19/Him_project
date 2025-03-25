@@ -1,6 +1,6 @@
 from typing import List
 import json
-import datetime
+from datetime import datetime
 import re
 from groq_interface import Groq_Agent
 
@@ -21,7 +21,7 @@ class Memory:
             if date == date_str1:
                 events_today.append(description)
 
-        return (date, age, events_today)
+        return (date_str1, age, events_today)
 
 
     def __init__(self, llm_interface: Groq_Agent, path_to_permanent_data="KB/permanent.json") -> None:
@@ -41,9 +41,7 @@ class Memory:
 
     def get_basic_info(self, field):
         # Return basic information
-        if field in self.permanent_info["basic_info"]:
-            return self.permanent_info["basic_info"][field]
-        return None
+        return self.basic_info.get(field, None)
     
     def get_date(self):
         today = datetime.today()
@@ -77,7 +75,7 @@ class Memory:
         (_,resp,_) = self.llm.make_query(prompt)
 
         # Extract text inside <keys>...</keys> using regex
-        match = re.search(r"<keys>(.*?)<\\keys>", resp, re.DOTALL)
+        match = re.search(r"<keys>(.*?)</keys>", resp, re.DOTALL)
         
         if not match:
             return []  # Return an empty list if no valid keys were found
@@ -99,10 +97,11 @@ class Memory:
 
         def search_misc(search_term, misc_data):
             # "misc.": [...set of strings] // for all the stuff that doesn't necessarily match with a key
-            misc_data = []
+            res = []
             for data_str in misc_data:
                 if search_term in data_str:
-                    misc_data.append(data_str)
+                    res.append(data_str)
+            return res
             
         recalled_data = []
         hierarchical_keys = self._generate_keys(query)
@@ -113,11 +112,11 @@ class Memory:
                 data_obj = self.data[top_level_key]
                 misc_data = data_obj["misc."]
                 recalled_data.append(data_obj["general"]) # Essentials
+
                 if len(key_obj) > 1:
                     # Actually has some search terms
-                    for search_term in key_obj[1:]:
-                        if search_term in data_obj:
-                            recalled_data.append(data_obj[search_term])
-                        recalled_data += search_misc(search_term, misc_data)
+                    search_terms = key_obj[1:]
+                recalled_data.extend(data_obj[term] for term in search_terms if term in data_obj)
+                recalled_data.extend(search_misc(term, data_obj["misc."]) for term in search_terms)
                     
         return "\n".join(recalled_data)
