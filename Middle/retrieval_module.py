@@ -51,7 +51,6 @@ class Memory:
     # Retrieving data
     def _generate_keys(self, contextualized_query)->List[str]:
         # Which top level fields to access
-        # Send query+context, and list of top level fields
         """
         LLM output should be in the format 
         <keys>
@@ -59,10 +58,34 @@ class Memory:
         * as many as it likes
         <\keys>
         """
+        # Send query+context, and list of top level fields
+        prompt = f"""
+        Here is the context + query:{contextualized_query}
+        Here are the top level fields in my knowledge base:{' '.join(self.top_level_fields)}
+        I want you to generate search keys for my knowledge base,
+        and return them in this format:
+        <keys>
+        top_level_field|search_term1 search_term2 search_terms...
+        ...
+        <\keys>
+        1. Do not generate any text outside the <keys> 
+        2. The first field should always be a top level field
+        3. The search terms should be separated by spaces
+        4. Err on the side of including more, and keep the search terms as general and abstract as you can
+        """
+        
         return [[],[]]
 
     def retrieve(self, query):
         # I'll return a string with all the data
+
+        def search_misc(search_term, misc_data):
+            # "misc.": [...set of strings] // for all the stuff that doesn't necessarily match with a key
+            misc_data = []
+            for data_str in misc_data:
+                if search_term in data_str:
+                    misc_data.append(data_str)
+            
         recalled_data = []
         hierarchical_keys = self._generate_keys(query)
         # The first element of each sub-array is my top-level keys
@@ -70,14 +93,13 @@ class Memory:
             top_level_key = key_obj[0]
             if top_level_key in self.field_data:
                 data_obj = self.data[top_level_key]
+                misc_data = data_obj["misc."]
                 recalled_data.append(data_obj["general"]) # Essentials
                 if len(key_obj) > 1:
                     # Actually has some search terms
-                    flag = 0
                     for search_term in key_obj[1:]:
                         if search_term in data_obj:
                             recalled_data.append(data_obj[search_term])
-                            flag = 1
-                    if not flag:
-                        recalled_data.append(data_obj["misc."])
+                        recalled_data += search_misc(search_term, misc_data)
+                    
         return "\n".join(recalled_data)
