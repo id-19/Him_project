@@ -82,7 +82,7 @@ class Memory:
         top_level_keys = keys_content.split("\n")
         rough_keys = []
         for top_level_key in top_level_keys:
-            rough_keys.append([f"{top_level_key} | {list(self.data[top_level_key].keys())}"])
+            rough_keys.append(f"{top_level_key} | {list(self.data[top_level_key].keys())}")
 
         final_prompt = f"""
         Here is the context + query:{contextualized_query}
@@ -91,7 +91,7 @@ class Memory:
         {"\n".join(rough_keys)}
         Return your output in the format:
         <keys>
-        top_level_field | <chosen search term1>, <chosen term2> ....
+        <top_level_field> | <chosen search term1>, <chosen term2> ....
         ...
         <\keys>
         1. Err on the side of slightly more
@@ -118,13 +118,13 @@ class Memory:
     def retrieve(self, contextualized_query):
         # I'll return a string with all the data
 
-        def search_misc(search_term, misc_data):
-            # "misc.": [...set of strings] // for all the stuff that doesn't necessarily match with a key
-            res = []
-            for data_str in misc_data:
-                if search_term in data_str:
-                    res.append(data_str)
-            return res
+        # def search_misc(search_term, misc_data):
+        #     # "misc.": [...set of strings] // for all the stuff that doesn't necessarily match with a key
+        #     res = []
+        #     for data_str in misc_data:
+        #         if search_term in data_str:
+        #             res.append(data_str)
+        #     return res
             
         recalled_data = []
         hierarchical_keys = self._generate_keys(contextualized_query)
@@ -138,7 +138,9 @@ class Memory:
                 if len(key_obj) > 1:
                     # Actually has some search terms
                     search_terms = key_obj[1:]
-                    recalled_data.extend(data_obj[term] for term in search_terms if term in data_obj)
-                    recalled_data.extend(search_misc(term, data_obj["misc."]) for term in search_terms)
+                    recalled_data.extend(f"{term}:{data_obj[term]}" for term in search_terms if term in data_obj)
+                    # misc_extension = [search_misc(term, data_obj["misc."]) for term in search_terms]
+                    # if len(misc_extension) > 0:
+                    #     recalled_data.extend(misc_extension)
                     
         return "\n".join(recalled_data)
