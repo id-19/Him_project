@@ -47,8 +47,7 @@ class Memory:
         today = datetime.today()
         return today.strftime("%d/%m/%Y")  # "25/03/2025"
 
-    # Retrieving data
-    def _generate_keys(self, contextualized_query)->List[str]:
+    def _generate_keys(self, contextualized_query) -> List[List[str]]:
         # Generate keys to search through knowledge base
         """
         LLM output should be in the format 
@@ -64,15 +63,13 @@ class Memory:
         I want you to generate search keys for my knowledge base,
         and return them in this format:
         <keys>
-        top_level_field|search_term1 search_term2 search_terms...
+        top_level_field | search_term1, search_term2, ...
         ...
         <\keys>
         1. Do not generate any text outside the <keys> 
-        2. The first field should always be a top level field
-        3. The search terms should be separated by commas
-        4. Err on the side of including more, and keep the search terms as general and abstract as you can
+        2. Only generate top level fields
         """
-        (_,resp,_) = self.llm.make_query(prompt)
+        (_, resp, _) = self.llm.make_query(prompt)
 
         # Extract text inside <keys>...</keys> using regex
         match = re.search(r"<keys>(.*?)</keys>", resp, re.DOTALL)
@@ -81,14 +78,18 @@ class Memory:
             return []  # Return an empty list if no valid keys were found
 
         keys_content = match.group(1).strip()
-
-        # Split lines and process each key entry
         key_list = []
         for line in keys_content.split("\n"):
-            line = line.strip()
-            if "|" in line:
-                field, terms = line.split("|", 1)
-                key_list.append([field.strip()] + list(terms.strip().split(",").map(lambda s:s.strip(),)))
+            if line:  # Ignore empty lines
+                parts = line.split(" | ")
+                if len(parts) == 2:
+                    top_level_key = parts[0].strip()
+                    search_terms = [term.strip() for term in parts[1].split(",")]
+                    key_list.append([top_level_key] + search_terms)
+                else:
+                    # Handle cases where no search terms are provided
+                    top_level_key = line.strip()
+                    key_list.append([top_level_key])
 
         return key_list  # Returns a structured list of lists
 
