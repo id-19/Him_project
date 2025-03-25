@@ -92,7 +92,7 @@ class Memory:
 
         return key_list  # Returns a structured list of lists
 
-    def retrieve(self, query):
+    def retrieve(self, contextualized_query):
         # I'll return a string with all the data
 
         def search_misc(search_term, misc_data):
