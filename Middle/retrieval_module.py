@@ -30,8 +30,8 @@ class Memory:
         self.basic_info = permanent_info['basic_info']
         self.field_data = permanent_info['fields_info']
         self.top_level_fields = list(self.field_data.keys())
-        self.init_temporary(self.basic_info, 
-                            self.data["events"]) # Initialise temporary data file
+        # self.init_temporary(self.basic_info, 
+                            # self.data["events"]) # Initialise temporary data file
         self.llm = llm_interface
 
     def get_info(self, path_to_permanent_data):
