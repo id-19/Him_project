@@ -85,8 +85,8 @@ class Conversationalist:
 
         User's last interaction: {user_query}
         """
-        self.learner.learn_from_query(learning_stuff)
         extra_context_string = self.memory.retrieve(learning_stuff) # improperly named, but whatever
+        self.learner.learn_from_query(learning_stuff, extra_context_string)
         finalized_prompt = f"""
         Summary of conversation so far:
         {self.context_string}
