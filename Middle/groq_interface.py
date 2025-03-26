@@ -8,7 +8,7 @@ class Groq_Agent:
         self.total_input_tokens = 0
         self.total_output_tokens = 0
 
-    def make_query(self, query, system_prompt = "You are Sam, a helpful friend who wants the best for the current user."):
+    def make_query(self, query, system_prompt = "You are Ram, a helpful friend who wants the best for the current user."):
         """
         Makes a query to the Groq API and returns the (num_input_tokens, response text, num_output_tokens)
         Also tracks token usage.
