@@ -6,7 +6,7 @@ import os
 
 # Processing module
 class Conversationalist:
-    def __init__(self, context_limit = 5000, model="") -> None:
+    def __init__(self, context_limit = 5000, model="qwen-2.5-32b") -> None:
         # Init for this module itself
         self.current_convo_context = deque();
         self.current_convo_context_size = 0 # How many characters we have in our current convo context
@@ -21,7 +21,7 @@ class Conversationalist:
         self.date = self.memory.get_date() # returned in string format
 
         # Init for groq interface
-        self.llm = Groq_Agent(groq_agent = Groq_Agent(os.getenv("GROQ_API_KEY"), model="qwen-2.5-32b"))
+        self.llm = Groq_Agent(os.getenv("GROQ_API_KEY"), model=model)
 
         # Init for learner
         self.learner = Learner(self.memory,self.llm)
