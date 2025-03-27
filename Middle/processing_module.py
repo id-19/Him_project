@@ -7,7 +7,7 @@ import os
 
 # Processing module
 class Conversationalist:
-    def __init__(self, context_limit = 20000, model="llama3-70b-8192") -> None:
+    def __init__(self, context_limit = 20000, model="llama3-70b-8192", groq_api_key = os.getenv("GROQ_API_KEY")) -> None:
         # Init for this module itself
         self.current_convo_msgs_num = 0
         self.current_convo_context = deque();
