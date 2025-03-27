@@ -16,7 +16,7 @@ class Conversationalist:
         self.context_string = ""
 
         # Init for groq interface
-        self.llm = Groq_Agent(os.getenv("GROQ_API_KEY"), model=model)
+        self.llm = Groq_Agent(groq_api_key, model=model)
 
         # Init for memory
         self.memory = Memory(self.llm)
